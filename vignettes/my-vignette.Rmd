@@ -1,8 +1,8 @@
 ---
-title: "my-vignette"
+title: "Report for LAB5"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{my-vignette}
+  %\VignetteIndexEntry{Report for LAB5}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,3 +17,54 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(Lab5)
 ```
+
+my_API Fuction: Access the Data in the API.
+Kolada database: The open and free database for municipalities and regions.
+This data set contains the code of regions and the name of the schools in each region  criteria.
+The function is used to measure the number of schools in each region that is the part of each municipality KPI.
+Input: URL/ output: datafram of the codes of region and the number of schools in each region
+rawToChar & fromJSON is used to change the structure of data to some readble R Data
+
+## Library:
+**httr**
+
+**jsonlite**
+
+
+## Function: 
+The function is used to measure the number of schools in each region that is the part of each municipality KPI.
+Input: URL/ output: datafram of the codes of region and the number of schools in each region
+rawToChar & fromJSON is used to change the structure of data to some readble R Data
+```{R function code}
+my_API <- function(url){
+  res <- httr::GET(url)
+  #stopifnot()
+  my_data <-  jsonlite::fromJSON(rawToChar(res$content))
+  #print(my_data)
+  municipality_name <- c(unique(my_data$values$municipality))
+  number_schools <- c()
+  for (value in municipality_name){
+    count=nrow(subset(my_data$values,my_data$values$municipality==value))
+    number_schools <- c(count,number_schools)
+  }
+  df <- data.frame(municipality_name,number_schools)
+  return(df)
+}
+
+```
+ 
+## How to use Function:
+
+Function my_API gets a URL as an input and the output would be a data frame of 2 variables **municipality_name** and **number_schools**
+municipality_name is a list of region codes as an character
+number_schools is a list of number of schools in each region as an integer.
+
+### Example 
+```{R input example, echo=TRUE}
+output <- my_API("http://api.kolada.se/v2/ou?title=skola")
+head(output)
+```
+ 
+### Note:
+The output of my_API function is used as an input for shiny app which gets the region codes and shows the number of schools in an iterative widget. Moreover shiny app has a table of all variable and user can filter based on any input.
+ 
