@@ -13,7 +13,7 @@
 
 my_API <- function(url){
   res <- httr::GET(url)
-  #stopifnot()
+  stopifnot(is.character(url)& !http_error(url) )
   my_data <-  jsonlite::fromJSON(rawToChar(res$content))
   #print(my_data)
   municipality_name <- c(unique(my_data$values$municipality))
@@ -25,6 +25,5 @@ my_API <- function(url){
   df <- data.frame(municipality_name,number_schools)
   return(df)
 }
-
 
 
